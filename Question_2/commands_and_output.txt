@@ -1,1 +1,55 @@
+cat > ~/hireflow-lab-assignment/Question_2/commands_and_output.txt << 'EOF'
+Question 2 - Fork, Process Monitoring, Zombie Prevention, Signal Termination
+=============================================================================
 
+Command 1:
+$ gcc -o monitor monitor.c -Wall
+
+Output:
+(no output, compiled cleanly with no warnings)
+
+Explanation: This compiles the C program with all warnings enabled; a
+clean compile with no warnings confirms there are no obvious bugs like
+unused variables or implicit type conversions.
+
+------------------------------------------------------------
+
+Command 2:
+$ ./monitor
+
+Output:
+[Parent] Launched child 0 with PID=2434
+[Child 0] PID=2434 starting, will run for 2 s
+[Parent] Launched child 1 with PID=2435
+[Child 1] PID=2435 starting, will run for 10 s
+[Parent] Launched child 2 with PID=2436
+[Child 2] PID=2436 starting, will run for 2 s
+[Child 0] PID=2434 finished work
+[Child 2] PID=2436 finished work
+[Parent] Child 0 (PID=2434) exited normally, code=0
+[Parent] Child 1 (PID=2435) exceeded timeout, sending SIGTERM
+[Parent] Child 1 (PID=2435) reaped after termination
+[Parent] Child 2 (PID=2436) exited normally, code=0
+[Parent] All children handled, no zombies remain.
+
+Explanation: Three children were forked; children 0 and 2 finished their
+2-second simulated work normally and exited with code 0, while child 1
+was deliberately made to sleep for 10 seconds, exceeded the 3-second
+timeout, and was terminated with SIGTERM by the parent, then reaped with
+waitpid() to prevent it from becoming a zombie.
+
+------------------------------------------------------------
+
+Command 3:
+$ ps aux | grep defunct
+
+Output:
+rafeeq   2443  0.0  0.0  4128  2424 pts/0  S+  05:41  0:00 grep --color=auto defunct
+
+Explanation: The only matching line is the grep command itself searching
+for the word "defunct" (which naturally contains that word in its own
+command line); there is no actual process shown with a <defunct> tag,
+confirming that every child process, including the one that was killed,
+was properly reaped by waitpid() and no zombie processes were left
+behind.
+EOF
