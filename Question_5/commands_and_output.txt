@@ -1,1 +1,89 @@
+Question 5 - vi Recovery Mechanisms After a Crash
+====================================================
 
+Command 1 (start an edit, do not save):
+$ cd ~/hireflow-lab-assignment/Question_5
+$ vim testfile.txt
+[typed some text, pressed Esc, did NOT save]
+
+Explanation: This creates unsaved changes in the vim buffer along with a
+hidden .testfile.txt.swp swap file that vim maintains automatically in
+the background while editing.
+
+------------------------------------------------------------
+
+Command 2 (in a second terminal, simulate a crash):
+$ pgrep vim
+12947
+$ kill -9 12947
+
+Explanation: Killing the vim process with SIGKILL simulates an abrupt
+system/session crash before the file was ever saved with :w.
+
+------------------------------------------------------------
+
+Command 3 (reopen the file to trigger recovery):
+$ vim testfile.txt
+
+Output:
+E325: ATTENTION
+Found a swap file by the name ".testfile.txt.swp"
+        owned by: rafeeq   dated: Sat Jul 18 06:42:28 2026
+       file name: ~rafeeq/hireflow-lab-assignment/Question_5/testfile.txt
+        modified: YES
+       user name: rafeeq   host name: LAPTOP-BNVKV0E1
+      process ID: 12947
+[O]pen Read-Only, (E)dit anyway, (R)ecover, (D)elete it, (Q)uit, (A)bort:
+
+Explanation: vim automatically detected the leftover swap file from the
+crashed session and offered to recover the unsaved changes.
+
+------------------------------------------------------------
+
+Command 4 (choose Recover):
+Pressed: R
+
+Output:
+Using swap file ".testfile.txt.swp"
+Original file "~/hireflow-lab-assignment/Question_5/testfile.txt"
+Recovery completed. You should check if everything is OK.
+(You might want to write out this file under another name
+and run diff with the original file to check for changes)
+You may want to delete the .swp file now.
+
+Explanation: Choosing (R)ecover restored the buffer to its exact state
+just before the crash; the unsaved text typed earlier was fully visible
+again after recovery, confirming the swap file successfully preserved
+the in-progress edits.
+
+------------------------------------------------------------
+
+Analysis of recovery mechanisms:
+
+1. Swap files (.filename.swp) - written automatically in the background
+   during editing; the most reliable recovery method since it requires
+   no prior configuration and is checked automatically on reopen. This
+   is the mechanism demonstrated above and it successfully restored the
+   unsaved text.
+
+2. Undo history / persistent undo - only available if `set undofile`
+   was enabled beforehand; writes an undo tree to disk that survives
+   across sessions, but offers no protection if not proactively
+   configured.
+
+3. Registers - hold copied/deleted text only in memory; not persisted
+   to disk, so they provide no crash recovery value.
+
+4. Backup files (.filename~) - created only when a file is actually
+   saved (if `set backup` is on); since the crash happened before any
+   save, this only restores the last saved version, not the crashed
+   edits.
+
+Conclusion: The swap file is the most reliable recovery strategy because
+it is automatic, requires no pre-configuration, and vim checks for it
+by default on reopening the file, as demonstrated in this test. The
+recommended recovery command is:
+   $ vim -r testfile.txt
+followed by verifying the recovered content and saving immediately with
+:w to clear the recovery state, then deleting the now-unneeded swap
+file.
