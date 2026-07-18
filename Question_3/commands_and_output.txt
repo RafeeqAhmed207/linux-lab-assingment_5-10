@@ -1,1 +1,46 @@
+cat > ~/hireflow-lab-assignment/Question_3/commands_and_output.txt << 'EOF'
+Question 3 - Low-Level File I/O with System Calls
+====================================================
 
+Command 1:
+$ gcc -o records records.c -Wall
+
+Output:
+(no output, compiled cleanly with no warnings)
+
+Explanation: This compiles the program using raw Linux system calls
+(open, read, write, lseek, close) instead of buffered stdio functions
+like fopen/fprintf.
+
+------------------------------------------------------------
+
+Command 2:
+$ ./records
+
+Output:
+Created employees.dat with 3 records.
+Record id=2: name=Bob, salary=48000.00
+Updated record id=2 -> salary=51000.00
+Record id=2: name=Bob, salary=51000.00
+Record id=3: name=Charlie, salary=62000.00
+
+Explanation: The program used open() with O_CREAT to create the file
+and write() to store 3 fixed-size employee records; it then used
+lseek() to jump directly to Bob's record (id=2), updated only his
+salary field in place without touching the rest of the file, and
+confirmed both the update and that Charlie's record (id=3) remained
+unaffected.
+
+------------------------------------------------------------
+
+Command 3:
+$ ls -l employees.dat
+
+Output:
+-rw-r--r-- 1 rafeeq rafeeq 120 Jul 18 06:16 employees.dat
+
+Explanation: The file size is exactly 3 records x 40 bytes (fixed
+struct size) = 120 bytes, confirming that each record occupies a
+predictable fixed offset, which is what makes direct-offset access with
+lseek() possible.
+EOF
