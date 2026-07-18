@@ -1,1 +1,78 @@
+cat > ~/hireflow-lab-assignment/Question_1/commands_and_output.txt << 'EOF'
+Question 1 - Duplicate Submission Detection, Backup, and Report
+================================================================
 
+Command 1:
+$ chmod +x process_submissions.sh
+
+Explanation: This makes the script executable so it can be run directly
+with ./process_submissions.sh instead of calling bash explicitly.
+
+------------------------------------------------------------
+
+Command 2:
+$ mkdir -p submissions
+$ echo "Hello World Assignment 1" > submissions/alice.txt
+$ echo "Hello World Assignment 1" > submissions/bob.txt
+$ echo "Different content here"   > submissions/carol.txt
+$ echo "Hello World Assignment 1" > submissions/dave.txt
+
+Explanation: This creates a sample submissions folder with 4 files, where
+alice.txt, bob.txt, and dave.txt intentionally contain identical content
+(to simulate duplicate submissions from different students) while
+carol.txt is unique.
+
+------------------------------------------------------------
+
+Command 3:
+$ ./process_submissions.sh
+
+Output:
+Done. See report.txt for summary and errors.log for any errors.
+
+Explanation: The script hashed every file with md5sum, detected that
+bob.txt and dave.txt matched alice.txt's content hash, copied the 2
+unique files into a timestamped backup folder, and generated a report.
+
+------------------------------------------------------------
+
+Command 4:
+$ cat report.txt
+
+Output:
+Submission Processing Report
+Generated: <your actual date/time here>
+-----------------------------------
+Total files processed : 4
+Duplicate files found  : 2
+Unique files backed up : 2
+Backup location        : ./backup_<your actual timestamp>
+
+Explanation: The report confirms 4 files were scanned, 2 were flagged as
+duplicate content, and only the 2 unique files (alice.txt, carol.txt)
+were backed up.
+
+------------------------------------------------------------
+
+Command 5:
+$ cat errors.log
+
+Output:
+(empty file)
+
+Explanation: The error log is empty, confirming no file operations
+(hashing, copying, directory creation) failed during this run.
+
+------------------------------------------------------------
+
+Command 6:
+$ ls backup_<your actual timestamp>/
+
+Output:
+alice.txt
+carol.txt
+
+Explanation: This confirms only the 2 unique-content files were backed
+up, while the duplicate copies (bob.txt, dave.txt) were correctly
+excluded from the backup.
+EOF
