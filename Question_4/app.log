@@ -1,1 +1,5 @@
 
+INFO: normal operation 1
+ERROR: disk full
+INFO: recovered
+ERROR: connection timeout

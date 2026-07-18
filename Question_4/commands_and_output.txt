@@ -1,1 +1,41 @@
+Question 4 - Real-Time Log Monitoring Pipeline
+=================================================
 
+Command 1 (Terminal A - start the monitoring pipeline):
+$ mkdir -p ~/hireflow-lab-assignment/Question_4
+$ cd ~/hireflow-lab-assignment/Question_4
+$ touch app.log
+$ tail -f app.log | grep --line-buffered "ERROR" | tee -a error_report.txt > /dev/null
+
+Explanation: tail -f streams new lines as they are appended to app.log
+in real time; grep --line-buffered filters only lines containing ERROR
+without waiting to buffer a full block of output; tee -a writes matches
+to error_report.txt while redirecting the duplicate terminal copy to
+/dev/null to suppress unnecessary console output.
+
+------------------------------------------------------------
+
+Command 2 (Terminal B - generate log activity):
+$ cd ~/hireflow-lab-assignment/Question_4
+$ echo "INFO: normal operation 1" >> app.log
+$ echo "ERROR: disk full" >> app.log
+$ echo "INFO: recovered" >> app.log
+$ echo "ERROR: connection timeout" >> app.log
+
+Explanation: These commands simulate a live application writing mixed
+INFO and ERROR log lines to app.log while the pipeline in Terminal A is
+actively watching the file.
+
+------------------------------------------------------------
+
+Command 3 (Terminal A - stop pipeline with Ctrl+C, then check results):
+$ cat error_report.txt
+
+Output:
+ERROR: disk full
+ERROR: connection timeout
+
+Explanation: Only the two ERROR lines were captured into
+error_report.txt, while the INFO lines were correctly filtered out by
+grep, and the terminal itself showed no leftover noise because matching
+output was redirected to /dev/null.
